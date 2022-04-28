@@ -14,7 +14,7 @@ work_root = os.path.join(home_dir, '.teroshdl', 'build')
 makefile_path = os.path.join(work_root, 'Makefile')
 print("")
 print("************************************************************************************************")
-print("---> Build directory: {}".format(work_root))
+print(f"---> Build directory: {work_root}")
 
 try:
     if (os.path.isdir(work_root) == True):
@@ -40,11 +40,14 @@ if (installation_path != ''):
             os.environ['PATH'] += f":{installation_path}"
 
     else:
-        print("---> Installation folder path: {} doesn't exists. It will search in the system path!!".format(installation_path))
+        print(
+            f"---> Installation folder path: {installation_path} doesn't exists. It will search in the system path!!"
+        )
+
 
 if (simulator == 'modelsim'):
     vsim_path = find_executable("vsim")
-    if (vsim_path == None):
+    if vsim_path is None:
         print('---> Error ModelSim path is not configured!')
         exit(-1)
     vsim_dir = os.path.dirname(vsim_path).replace("\\", "/")
@@ -76,19 +79,17 @@ try:
 run-gui-external: work $(VPI_MODULES)\n\
 	$(VSIM) -do \"vcd file waveform.vcd;vcd add -r *;run -all;quit -code [expr [coverage attribute -name TESTSTATUS -concise] >= 2 ? [coverage attribute -name TESTSTATUS -concise] : 0]; exit\" -c $(addprefix -pli ,$(VPI_MODULES)) $(EXTRA_OPTIONS) $(TOPLEVEL)\
 "
-            make_file = open(makefile_path, "a")
-            make_file.write(run_gui_external)
-            make_file.close()
+            with open(makefile_path, "a") as make_file:
+                make_file.write(run_gui_external)
             p = subprocess.Popen(['make', 'run-gui-external'], cwd=work_root)
-            p.wait()
         else:
             p = subprocess.Popen(['make', 'run-gui'], cwd=work_root)
-            p.wait()
+        p.wait()
     else:
         backend.build()
         backend.run()
 
 except Exception as e:
     if (developer_mode == "true"):
-        print('Error: ' + str(e))
+        print(f'Error: {str(e)}')
     exit(-1)

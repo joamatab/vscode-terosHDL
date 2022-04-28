@@ -16,10 +16,9 @@ def generate_html_button_tab(doc):
 
 
 def generate_html_tabs(doc):
-    html = ''
-    for tabname in doc:
-        html += generate_html_tab(doc[tabname], tabname, doc)
-    return html
+    return ''.join(
+        generate_html_tab(doc[tabname], tabname, doc) for tabname in doc
+    )
 
 
 def generate_checkbox(option, name, tab_name):
@@ -144,7 +143,7 @@ def generate_html_tab(tab, tab_name, doc):
     html += '  <hr></hr>'
 
     for option_name in tab:
-        if (option_name != 'title' and option_name != 'description' and option_name != 'type'):
+        if option_name not in ['title', 'description', 'type']:
             option = tab[option_name]
             option_type = option['type']
             if (option_type == 'checkbox'):
@@ -167,7 +166,7 @@ def generate_html_tab(tab, tab_name, doc):
 
 
 def generate_script_switch_ab():
-    html = """
+    return """
   const vscode = acquireVsCodeApi();
 
   function open_tab(evt, cityName) {
@@ -212,7 +211,6 @@ def generate_script_switch_ab():
     });
   }
 """
-    return html
 
 
 def generate_get_config(doc):
@@ -250,13 +248,11 @@ def generate_get_config(doc):
                 option = tab[option_name]
                 id_name = f"""{tabname}_{option_name}"""
                 option_type = option['type']
-                if (option_type == 'checkbox'):
+                if option_type == 'checkbox':
                     html += f"""        '{option_name}': document.getElementById("{id_name}").checked,\n"""
-                elif (option_type == 'input_comma'):
+                elif option_type == 'input_comma':
                     html += f"""        '{option_name}': document.getElementById("{id_name}").value.split(','),\n"""
-                elif (option_type == 'subtitle'):
-                    pass
-                else:
+                elif option_type != 'subtitle':
                     html += f"""        '{option_name}': document.getElementById("{id_name}").value,\n"""
 
         html += "      }\n"
@@ -293,13 +289,11 @@ def generate_set_config(doc):
     for tabname in doc:
         if (first == True):
             html += f"      if (config_tool === '{tabname}'){{\n"
-            html += f"        set_{tabname}_options(options, installation_path);\n"
-            html += "      }\n"
             first = False
         else:
             html += f"      else if (config_tool === '{tabname}'){{\n"
-            html += f"        set_{tabname}_options(options, installation_path);\n"
-            html += "      }\n"
+        html += f"        set_{tabname}_options(options, installation_path);\n"
+        html += "      }\n"
     html += """
     }
   }
@@ -325,9 +319,7 @@ def generate_set_options(doc):
                 elif(option_type == "input_comma"):
                     html += f"    if({option_let} === undefined){{{option_let} = [];}}\n"
                     html += f"    document.getElementById('{id_name}').value = {option_let}.join(',');\n"
-                elif(option_type == "subtitle"):
-                    pass
-                else:
+                elif option_type != "subtitle":
                     html += f"    if({option_let} === undefined){{{option_let} = '';}}\n"
                     html += f"    document.getElementById('{id_name}').value = {option_let};\n"
         html += '  }\n'
