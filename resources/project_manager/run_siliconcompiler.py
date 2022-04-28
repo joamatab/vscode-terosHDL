@@ -27,7 +27,7 @@ def save_credentials(tool_options):
         with open(cretentials_path, 'w') as outfile:
             json.dump(json_credentials, outfile)
     else:
-        print(f"-------> Remote server isn't enabled.")
+        print("-------> Remote server isn't enabled.")
 
     print("****************************************************************************************************************************************")
     return server_enable
